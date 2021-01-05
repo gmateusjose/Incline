@@ -1,14 +1,21 @@
-// Variables for measurement of distance
-int sensor_distance = 100;
+// Variable to configure the sensibility
+int sensor_distance = 100; 
+
+// Settings for counting the movements and calculating the mean
 int count = 1;
+int total_movements = 50;
+float sum = 0;
 
 void setup() {
+  // pin configuration and serial configuration
   pinMode(8, INPUT);
   pinMode(7, INPUT);
   Serial.begin(9600);
 }
 
 void loop() {
+  // set the variables to save the time when the sphere is at the top
+  // and when the shpere is at the bottom.
   long top = 0;
   long bottom = 0;
   
@@ -24,15 +31,28 @@ void loop() {
       bottom = millis();
     }
 
-    // Checking the stop condition and print the results 
+    // Checking the stop condition compute the results
+    // and then print the results 
     if(top != 0 and bottom != 0 and bottom > top){
+      float time_duration = (float)(bottom - top)/1000;
+      sum += time_duration;
       Serial.print("Attempt ");
       Serial.print(count);
       Serial.print(": ");
-      Serial.print(1.0*(bottom - top)/1000);
+      Serial.print(time_duration);
       Serial.println(" s");
       break;
     }
   }
-  count++;
+  if(count < total_movements){
+    // increase the movements counting
+    count++;
+  } else {
+    // Calculate the mean and finish the execution
+    float mean = sum / (float)count;
+    Serial.print("Mean: ");
+    Serial.print(mean);
+    Serial.println(" s");
+    exit;
+  }
 }
