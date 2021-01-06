@@ -1,7 +1,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from math import sin, cos, radians, sqrt 
+from math import sin, cos, radians, sqrt, ceil, degrees, atan
 from checking import get_data
 
 QTY_ARGUMENTS = 5
@@ -41,17 +41,18 @@ def main():
 
 
 def get_compression(fixedLength, rolling):
-    xvalues = [x for x in range(10, 90)]
+    starting_angle = ceil(degrees(atan(rolling)))
+    if starting_angle <= 10:
+        starting_angle = 10
+
+    xvalues = [x for x in range(starting_angle, 90)]
     yvalues = list()
     
     for x in xvalues:
-        try:
-            num = 2.8 * fixedLength
-            den = GRAV * (sin(radians(x)) - rolling*cos(radians(x)))
-            yvalues.append(sqrt(num / den))
-        except:
-            yvalues.append(0)
-
+        num = 2.8 * fixedLength
+        den = GRAV * (sin(radians(x)) - rolling*cos(radians(x)))
+        yvalues.append(sqrt(num / den))
+        
     return {'x': xvalues, 'y': yvalues}
 
 def get_rolling(fixedLength):
@@ -79,16 +80,17 @@ def get_sliding(fixed_length):
 
 def get_friction(fixed_length, friction):
     # Getting the xvalues who satisfy the condition
-    xvalues = [x for x in range(10, 90)]
+    starting_angle = ceil(degrees(atan(friction)))
+    if starting_angle < 10:
+        starting_angle = 10
+
+    xvalues = [x for x in range(starting_angle, 90)]
     yvalues = list()
     
     for x in xvalues:
         num = 2 * fixed_length
         den = GRAV * (sin(radians(x)) - friction * cos(radians(x))) 
-        try:
-            yvalues.append(sqrt(num / den))
-        except:
-            yvalues.append(0)
+        yvalues.append(sqrt(num / den))
 
     return {'x': xvalues, 'y': yvalues}
 
