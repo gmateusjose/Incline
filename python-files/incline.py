@@ -15,21 +15,21 @@ def main():
     mpl.rcParams['font.family'] = 'serif'
 
     # Changing things accordingly with the graph mode
-
     if 'fixedLength' in data.keys():
         plt.xlabel('Ângulo [Graus]')
-
         sliding = get_sliding(data['fixedLength'])
-        rolling = get_rolling(data['fixedLength'], data['friction'])
+        friction = get_friction(data['fixedLength'], data['friction'])
+        rolling = get_rolling(data['fixedLength'])
+        compression = get_compression(data['fixedLength'], data['rolling']) 
     else:
         plt.xlabel('Comprimento rampa [m]')
     
     # Ploting the line graphs
     plt.plot(sliding['x'], sliding['y'], label='Deslizamento')
-    plt.plot([1, 2, 3, 4], [2, 4, 6, 8], \
+    plt.plot(friction['x'], friction['y'], \
         label=rf"Fricção ($\mu = {data['friction']}$)")
     plt.plot(rolling['x'], rolling['y'], label='Rolamento')
-    plt.plot([1, 2, 3, 4], [4, 8, 12, 16], \
+    plt.plot(compression['x'], compression['y'], \
         label=rf"Compressão ($\alpha = {data['rolling']}$)")
 
     # Plotting the y-axis, the scatter plot (if any) the legend and showing up
@@ -40,6 +40,31 @@ def main():
     plt.show()
 
 
+def get_compression(fixedLength, rolling):
+    xvalues = [x for x in range(10, 90)]
+    yvalues = list()
+    
+    for x in xvalues:
+        try:
+            num = 2.8 * fixedLength
+            den = GRAV * (sin(radians(x)) - rolling*cos(radians(x)))
+            yvalues.append(sqrt(num / den))
+        except:
+            yvalues.append(0)
+
+    return {'x': xvalues, 'y': yvalues}
+
+def get_rolling(fixedLength):
+    xvalues = [x for x in range(10, 90)]
+    yvalues = list()
+
+    for x in xvalues:
+        num = 2.8 * fixedLength 
+        den = GRAV * sin(radians(x))
+        yvalues.append(sqrt(num / den))
+    return {'x': xvalues, 'y': yvalues}
+
+
 def get_sliding(fixed_length):
     # Getting the xvalues between 1 and 85 with step 5
     xvalues = [x for x in range(10, 90)]
@@ -48,12 +73,11 @@ def get_sliding(fixed_length):
     for x in xvalues:
         num = 2 * fixed_length
         den = GRAV * sin(radians(x))
-        print(f"{x}, {sqrt(num / den)}")
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
 
-def get_rolling(fixed_length, friction):
+def get_friction(fixed_length, friction):
     # Getting the xvalues who satisfy the condition
     xvalues = [x for x in range(10, 90)]
     yvalues = list()
