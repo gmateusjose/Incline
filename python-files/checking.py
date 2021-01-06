@@ -7,7 +7,7 @@ def get_data(arguments):
         print("""
         Error: You must provide as arguments
         \t - a mode [-l/-a] (fixed length / fixed angle)
-        \t - a setup value (fixed length or fixed angle)
+        \t - a fixed length or fixed angle value (depending on mode)
         \t - a friction constant
         \t - a rolling constant 
         \t - a filename to an experiment data (optional)
@@ -55,12 +55,13 @@ def get_data(arguments):
     # appending all the informations in a dict the mode by default is 'length'
     # but if an '-a' tag is added, the mode will change to 'angle'.
     experiment_data = {
-        'mode': 'length',
         'friction': argv[3],
         'rolling': argv[4],
         'scatter': {'x': list(), 'y': list()}
     }
-    if argv[1] == '-a':
-        experiment_data['mode'] = 'angle'
+    if argv[1] == '-l':
+        experiment_data['fixedLength'] = argv[2]
+    else:
+        experiment_data['fixedAngle'] = argv[2]
 
     return experiment_data
