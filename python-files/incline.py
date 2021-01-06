@@ -2,19 +2,17 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from math import sin, cos, radians, sqrt 
-from sys import argv, exit
+from checking import get_data
 
-NUMBER_OF_ARGUMENTS = 5
-G = 9.18
+QTY_ARGUMENTS = 5
+GRAV = 9.18
+
 
 def main():
-    check_arguments()
-    if argv[1] == '-l':
-        plot_length()
-    elif argv[1] == '-a':
-        plot_angle()
+    data = get_data(QTY_ARGUMENTS)
+    print(data)
 
-
+"""
 def plot_length():
     mpl.rcParams['font.family'] = 'serif'
     plt.xlabel('Ângulo [Graus]')
@@ -102,6 +100,6 @@ def check_arguments():
         print("Error: You must provide a [friction] constant and a [rolling] \
         constant greater than 0.")
         exit(1)
-    
-main()
 
+"""
+main()
