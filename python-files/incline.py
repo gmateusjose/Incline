@@ -5,7 +5,7 @@ from math import sin, cos, radians, sqrt
 from checking import get_data
 
 QTY_ARGUMENTS = 5
-GRAV = 9.18
+GRAV = 9.82 # Measurement made with smartphone
 
 
 def main():
@@ -15,17 +15,21 @@ def main():
     mpl.rcParams['font.family'] = 'serif'
 
     # Changing things accordingly with the graph mode
-    if data['mode'] == 'length':
+
+    if 'fixedLength' in data.keys():
         plt.xlabel('Ângulo [Graus]')
+
+        sliding = get_sliding(data['fixedLength'])
+        rolling = get_rolling(data['fixedLength'], data['friction'])
     else:
         plt.xlabel('Comprimento rampa [m]')
     
     # Ploting the line graphs
-    plt.plot([1, 2, 3], [1, 2, 3], label='Deslizamento')
-    plt.plot([1, 2, 3], [2, 4, 6], \
+    plt.plot(sliding['x'], sliding['y'], label='Deslizamento')
+    plt.plot([1, 2, 3, 4], [2, 4, 6, 8], \
         label=rf"Fricção ($\mu = {data['friction']}$)")
-    plt.plot([1, 2, 3], [3, 6, 9], label='Rolamento')
-    plt.plot([1, 2, 3], [4, 8, 12], \
+    plt.plot(rolling['x'], rolling['y'], label='Rolamento')
+    plt.plot([1, 2, 3, 4], [4, 8, 12, 16], \
         label=rf"Compressão ($\alpha = {data['rolling']}$)")
 
     # Plotting the y-axis, the scatter plot (if any) the legend and showing up
@@ -35,42 +39,33 @@ def main():
     plt.legend()
     plt.show()
 
-"""
-def plot_length():
-    x = [x for x in range(10, 90, 5)]
-    y_deslizamento = []
-    y_friccao = []
-    y_rotacao = []
-    y_compressao = []
 
-    for angle in x:
-        deslizamento = sqrt(2*argv[2] / G*sin(radians(angle)))
-        friccao = 
-        rotacao =
-        compressao =
-        
-        y_deslizamento.append(deslizamento)
-        y_friccao.append(friccao)
-        y_rotacao.append(rotacao)
-        y_compressao.append(compressao)
-        
-def plot_angle():
-    x = [x/10 for x in range(16)]
-    y_deslizamento = []
-    y_friccao = []
-    y_rotacao = []
-    y_compressao = []
+def get_sliding(fixed_length):
+    # Getting the xvalues between 1 and 85 with step 5
+    xvalues = [x for x in range(10, 90)]
+    yvalues = list()
 
-    for length in x:
-        deslizamento = sqrt(2*length / G*sin(radians(argv[2])))
-        friccao = sqrt(2*length / G*(sin(radians(argv[2])) - \
-            cos(radians(argv[2]))))
-        rotacao = sqrt()
-        compressao = sqrt()
+    for x in xvalues:
+        num = 2 * fixed_length
+        den = GRAV * sin(radians(x))
+        print(f"{x}, {sqrt(num / den)}")
+        yvalues.append(sqrt(num / den))
+    return {'x': xvalues, 'y': yvalues}
 
-        y_deslizamento.append(deslizamento)
-        y_friccao.append(friccao)
-        y_rotacao.append(rotacao)
-        y_compressao.append(compressao)
-"""
+
+def get_rolling(fixed_length, friction):
+    # Getting the xvalues who satisfy the condition
+    xvalues = [x for x in range(10, 90)]
+    yvalues = list()
+    
+    for x in xvalues:
+        num = 2 * fixed_length
+        den = GRAV * (sin(radians(x)) - friction * cos(radians(x))) 
+        try:
+            yvalues.append(sqrt(num / den))
+        except:
+            yvalues.append(0)
+
+    return {'x': xvalues, 'y': yvalues}
+
 main()
