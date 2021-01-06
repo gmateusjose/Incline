@@ -19,6 +19,14 @@ def main():
         plt.xlabel('Ângulo [Graus]')
     else:
         plt.xlabel('Comprimento rampa [m]')
+    
+    # Ploting the line graphs
+    plt.plot([1, 2, 3], [1, 2, 3], label='Deslizamento')
+    plt.plot([1, 2, 3], [2, 4, 6], \
+        label=rf"Fricção ($\mu = {data['friction']}$)")
+    plt.plot([1, 2, 3], [3, 6, 9], label='Rolamento')
+    plt.plot([1, 2, 3], [4, 8, 12], \
+        label=rf"Compressão ($\alpha = {data['rolling']}$)")
 
     # Plotting the y-axis, the scatter plot (if any) the legend and showing up
     # the graph
@@ -45,12 +53,7 @@ def plot_length():
         y_friccao.append(friccao)
         y_rotacao.append(rotacao)
         y_compressao.append(compressao)
-
-    plt.plot(x, y_deslizamento, label='Deslizamento')
-    plt.plot(x, y_friccao, label=r'Fricção com $\mu = $')
-    plt.plot(x, y_rotacao, label='Rotação')
-    plt.plot(x, y_compressao, label=r'Compressão com $\alpha = $')
-
+        
 def plot_angle():
     x = [x/10 for x in range(16)]
     y_deslizamento = []
@@ -69,10 +72,5 @@ def plot_angle():
         y_friccao.append(friccao)
         y_rotacao.append(rotacao)
         y_compressao.append(compressao)
-
-    plt.plot(x, y_deslizamento, label='Deslizamento')
-    plt.plot(x, y_friccao, label=r'Fricção com $\mu = {}$'.format(argv[3]))
-    plt.plot(x, y_rotacao, label='Rotação')
-    plt.plot(x, y_compressao, label=r'Compressão com $\alpha = {}$'.format(argv[4]))
 """
 main()
