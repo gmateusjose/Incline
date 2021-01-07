@@ -4,94 +4,114 @@ import matplotlib.pyplot as plt
 from math import sin, cos, radians, sqrt, ceil, degrees, atan
 from checking import get_data
 
+# System configuration
 QTY_ARGUMENTS = 5
-GRAV = 9.82 # Measurement made with smartphone
+GRAV = 9.82
 
+# Axis and some plotting configuration
+PLOT_CONFIG = {
+    'starting_angle': 5,
+    'ending_angle': 85,
+}
+
+# Sytem arguments
+DATA = get_data(QTY_ARGUMENTS)
 
 def main():
-    data = get_data(QTY_ARGUMENTS)
-
     # Configuring the plot
     mpl.rcParams['font.family'] = 'serif'
 
     # Changing things accordingly with the graph mode
-    if 'fixedLength' in data.keys():
+    if 'fixedLength' in DATA.keys():
         plt.xlabel('Ângulo [Graus]')
-        sliding = get_sliding(data['fixedLength'])
-        friction = get_friction(data['fixedLength'], data['friction'])
-        rolling = get_rolling(data['fixedLength'])
-        compression = get_compression(data['fixedLength'], data['rolling']) 
+        sliding = get_sliding()
+        friction = get_friction()
+        rolling = get_rolling()
+        compression = get_compression() 
     else:
         plt.xlabel('Comprimento rampa [m]')
+        sliding = get_sliding_angle()
+        rolling = get_rolling_angle()
+        friction = get_friction_angle()
+        compression = get_compression_angle()
     
     # Ploting the line graphs
     plt.plot(sliding['x'], sliding['y'], label='Deslizamento')
     plt.plot(friction['x'], friction['y'], \
-        label=rf"Fricção ($\mu = {data['friction']}$)")
+        label=rf"Fricção ($\mu = {DATA['friction']}$)")
     plt.plot(rolling['x'], rolling['y'], label='Rolamento')
     plt.plot(compression['x'], compression['y'], \
-        label=rf"Compressão ($\alpha = {data['rolling']}$)")
+        label=rf"Compressão ($\alpha = {DATA['rolling']}$)")
 
     # Plotting the y-axis, the scatter plot (if any) the legend and showing up
     # the graph
-    plt.scatter(data['scatter']['x'], data['scatter']['y'], c='black')
+    plt.scatter(DATA['scatter']['x'], DATA['scatter']['y'], c='black')
     plt.ylabel('Duração movimento [s]')
     plt.legend()
     plt.show()
 
+def get_friction_angle():
+    return {'x': list(), 'y': list()}
 
-def get_compression(fixedLength, rolling):
-    starting_angle = ceil(degrees(atan(rolling)))
-    if starting_angle <= 10:
-        starting_angle = 10
+def get_compression_angle():
+    return {'x': list(), 'y': list()}
 
-    xvalues = [x for x in range(starting_angle, 90)]
+def get_sliding_angle():
+    return {'x': list(), 'y': list()}
+
+def get_rolling_angle():
+    return {'x': list(), 'y': list()}
+
+def get_compression():
+    starting_angle = ceil(degrees(atan(DATA['rolling'])))
+    if starting_angle <= PLOT_CONFIG['starting_angle']:
+        starting_angle = PLOT_CONFIG['starting_angle']
+
+    xvalues = [x for x in range(starting_angle, PLOT_CONFIG['ending_angle'] + 1)]
     yvalues = list()
     
     for x in xvalues:
-        num = 2.8 * fixedLength
-        den = GRAV * (sin(radians(x)) - rolling*cos(radians(x)))
+        num = 2.8 * DATA['fixedLength']
+        den = GRAV * (sin(radians(x)) - DATA['rolling'] * cos(radians(x)))
         yvalues.append(sqrt(num / den))
-        
     return {'x': xvalues, 'y': yvalues}
 
-def get_rolling(fixedLength):
-    xvalues = [x for x in range(10, 90)]
+def get_rolling():
+    xvalues = [x for x in range(PLOT_CONFIG['starting_angle'], PLOT_CONFIG['ending_angle'] + 1)]
     yvalues = list()
 
     for x in xvalues:
-        num = 2.8 * fixedLength 
+        num = 2.8 * DATA['fixedLength']
         den = GRAV * sin(radians(x))
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
 
-def get_sliding(fixed_length):
+def get_sliding():
     # Getting the xvalues between 1 and 85 with step 5
-    xvalues = [x for x in range(10, 90)]
+    xvalues = [x for x in range(PLOT_CONFIG['starting_angle'], PLOT_CONFIG['ending_angle'] + 1)]
     yvalues = list()
 
     for x in xvalues:
-        num = 2 * fixed_length
+        num = 2 * DATA['fixedLength']
         den = GRAV * sin(radians(x))
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
 
-def get_friction(fixed_length, friction):
+def get_friction():
     # Getting the xvalues who satisfy the condition
-    starting_angle = ceil(degrees(atan(friction)))
-    if starting_angle < 10:
-        starting_angle = 10
+    starting_angle = ceil(degrees(atan(DATA['friction'])))
+    if starting_angle < PLOT_CONFIG['starting_angle']:
+        starting_angle = PLOT_CONFIG['starting_angle']
 
-    xvalues = [x for x in range(starting_angle, 90)]
+    xvalues = [x for x in range(starting_angle, PLOT_CONFIG['ending_angle'] + 1)]
     yvalues = list()
     
     for x in xvalues:
-        num = 2 * fixed_length
-        den = GRAV * (sin(radians(x)) - friction * cos(radians(x))) 
+        num = 2 * DATA['fixedLength']
+        den = GRAV * (sin(radians(x)) - DATA['friction'] * cos(radians(x))) 
         yvalues.append(sqrt(num / den))
-
     return {'x': xvalues, 'y': yvalues}
 
 main()
