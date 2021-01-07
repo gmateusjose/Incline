@@ -12,6 +12,8 @@ GRAV = 9.82
 PLOT_CONFIG = {
     'starting_angle': 5,
     'ending_angle': 85,
+    'starting_length': 0.1,
+    'ending_length': 1.5
 }
 
 # Sytem arguments
@@ -51,16 +53,51 @@ def main():
     plt.show()
 
 def get_friction_angle():
-    return {'x': list(), 'y': list()}
+    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
+        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
+    yvalues = list()
+
+    for x in xvalues:
+        num = 2 * x
+        den = GRAV * (sin(radians(DATA['fixedAngle'])) - DATA['friction'] * \
+            cos(radians(DATA['fixedAngle'])))
+        yvalues.append(sqrt(num / den))
+    return {'x': xvalues, 'y': yvalues}
 
 def get_compression_angle():
-    return {'x': list(), 'y': list()}
+    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
+        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
+    yvalues = list()
+
+    for x in xvalues:
+        num = 2.8 * x
+        den = GRAV * (sin(radians(DATA['fixedAngle'])) - DATA['rolling'] * \
+            cos(radians(DATA['fixedAngle'])))
+        yvalues.append(sqrt(num / den))
+    return {'x': xvalues, 'y': yvalues}
 
 def get_sliding_angle():
-    return {'x': list(), 'y': list()}
+    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
+        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
+    yvalues = list()
+    
+    for x in xvalues:
+        num = 2 * x
+        den = GRAV * sin(radians(DATA['fixedAngle']))
+        yvalues.append(sqrt(num / den))
+    return {'x': xvalues, 'y': yvalues}
 
 def get_rolling_angle():
-    return {'x': list(), 'y': list()}
+    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
+        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
+    yvalues = list()
+
+    for x in xvalues:
+        num = 2.8 * x
+        den = GRAV * sin(radians(DATA['fixedAngle']))
+        yvalues.append(sqrt(num / den))
+    
+    return {'x': xvalues, 'y': yvalues}
 
 def get_compression():
     starting_angle = ceil(degrees(atan(DATA['rolling'])))
