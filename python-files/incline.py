@@ -8,16 +8,15 @@ from checking import get_data
 QTY_ARGUMENTS = 5
 GRAV = 9.82
 
-# Axis and some plotting configuration
-PLOT_CONFIG = {
-    'starting_angle': 5,
-    'ending_angle': 85,
-    'starting_length': 0.1,
-    'ending_length': 1.5
-}
-
 # Sytem arguments
 DATA = get_data(QTY_ARGUMENTS)
+
+# Axis and some plotting configuration
+PLOT_CONFIG = dict()
+
+# lambda functions to make sin and cos accept entries in degrees
+dsin = lambda deg_angle: sin(radians(deg_angle))
+dcos = lambda deg_angle: cos(radians(deg_angle))
 
 def main():
     # Configuring the plot
@@ -26,12 +25,24 @@ def main():
     # Changing things accordingly with the graph mode
     if 'fixedLength' in DATA.keys():
         plt.xlabel('Ângulo [Graus]')
+        PLOT_CONFIG['starting_angle'] = 5
+        PLOT_CONFIG['ending_angle'] = 85
+        
+        # More lambda functions to control the function arguments
+        # ...
+        
         sliding = get_sliding()
         friction = get_friction()
         rolling = get_rolling()
         compression = get_compression() 
     else:
         plt.xlabel('Comprimento rampa [m]')
+        PLOT_CONFIG['starting_length'] = 0.5
+        PLOT_CONFIG['ending_length'] = 1.5
+        
+        # More lambda functions to control the function arguments
+        # ...
+
         sliding = get_sliding_angle()
         rolling = get_rolling_angle()
         friction = get_friction_angle()
@@ -59,8 +70,8 @@ def get_friction_angle():
 
     for x in xvalues:
         num = 2 * x
-        den = GRAV * (sin(radians(DATA['fixedAngle'])) - DATA['friction'] * \
-            cos(radians(DATA['fixedAngle'])))
+        den = GRAV * (dsin(DATA['fixedAngle']) - DATA['friction'] * \
+            dcos(DATA['fixedAngle']))
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
@@ -71,8 +82,8 @@ def get_compression_angle():
 
     for x in xvalues:
         num = 2.8 * x
-        den = GRAV * (sin(radians(DATA['fixedAngle'])) - DATA['rolling'] * \
-            cos(radians(DATA['fixedAngle'])))
+        den = GRAV * (dsin(DATA['fixedAngle']) - DATA['rolling'] * \
+            dcos(DATA['fixedAngle']))
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
@@ -83,7 +94,7 @@ def get_sliding_angle():
     
     for x in xvalues:
         num = 2 * x
-        den = GRAV * sin(radians(DATA['fixedAngle']))
+        den = GRAV * dsin(DATA['fixedAngle'])
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
@@ -94,7 +105,7 @@ def get_rolling_angle():
 
     for x in xvalues:
         num = 2.8 * x
-        den = GRAV * sin(radians(DATA['fixedAngle']))
+        den = GRAV * dsin(DATA['fixedAngle'])
         yvalues.append(sqrt(num / den))
     
     return {'x': xvalues, 'y': yvalues}
@@ -109,7 +120,7 @@ def get_compression():
     
     for x in xvalues:
         num = 2.8 * DATA['fixedLength']
-        den = GRAV * (sin(radians(x)) - DATA['rolling'] * cos(radians(x)))
+        den = GRAV * (dsin(x) - DATA['rolling'] * dcos(x))
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
@@ -119,7 +130,7 @@ def get_rolling():
 
     for x in xvalues:
         num = 2.8 * DATA['fixedLength']
-        den = GRAV * sin(radians(x))
+        den = GRAV * dsin(x)
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
@@ -131,7 +142,7 @@ def get_sliding():
 
     for x in xvalues:
         num = 2 * DATA['fixedLength']
-        den = GRAV * sin(radians(x))
+        den = GRAV * dsin(x)
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
@@ -147,7 +158,7 @@ def get_friction():
     
     for x in xvalues:
         num = 2 * DATA['fixedLength']
-        den = GRAV * (sin(radians(x)) - DATA['friction'] * cos(radians(x))) 
+        den = GRAV * (dsin(x) - DATA['friction'] * dcos(x)) 
         yvalues.append(sqrt(num / den))
     return {'x': xvalues, 'y': yvalues}
 
