@@ -27,26 +27,34 @@ def main():
         plt.xlabel('Ângulo [Graus]')
         PLOT_CONFIG['starting_angle'] = 5
         PLOT_CONFIG['ending_angle'] = 85
+
+        xvalues = [x for x in range(PLOT_CONFIG['starting_angle'], \
+            PLOT_CONFIG['ending_angle'] + 1)]
         
-        # More lambda functions to control the function arguments
-        # ...
+        sliding = (lambda xvalues: {'x': xvalues, 'y': [sliding_model(x) for x in \
+            xvalues]})(xvalues)
+        rolling = (lambda xvalues: {'x': xvalues, 'y': [rolling_model(x) for x in \
+            xvalues]})(xvalues)
         
-        sliding = get_sliding()
         friction = get_friction()
-        rolling = get_rolling()
-        compression = get_compression() 
+        compression = get_compression()
+        
     else:
         plt.xlabel('Comprimento rampa [m]')
         PLOT_CONFIG['starting_length'] = 0.5
         PLOT_CONFIG['ending_length'] = 1.5
         
-        # More lambda functions to control the function arguments
-        # ...
+        xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
+            int(PLOT_CONFIG['ending_length'] * 20 + 1))]
 
-        sliding = get_sliding_angle()
-        rolling = get_rolling_angle()
-        friction = get_friction_angle()
-        compression = get_compression_angle()
+        sliding = (lambda xvalues: {'x': xvalues, 'y': [sliding_model(x) for x in \
+            xvalues]})(xvalues) 
+        friction = (lambda xvalues: {'x': xvalues, 'y': [friction_model(x) for x in \
+            xvalues]})(xvalues)
+        rolling = (lambda xvalues: {'x': xvalues, 'y': [rolling_model(x) for x in \
+            xvalues]})(xvalues)
+        compression = (lambda xvalues: {'x': xvalues, 'y': [compression_model(x) for \
+            x in xvalues]})(xvalues)
     
     # Ploting the line graphs
     plt.plot(sliding['x'], sliding['y'], label='Deslizamento')
@@ -63,52 +71,45 @@ def main():
     plt.legend()
     plt.show()
 
-def get_friction_angle():
-    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
-        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
-    yvalues = list()
 
-    for x in xvalues:
-        num = 2 * x
+# Calculation Functions 
+def sliding_model(entry):
+    if 'fixedLength' in DATA.keys():
+        num = 2 * DATA['fixedLength']
+        den = GRAV * dsin(entry)
+    else:
+        num = 2 * entry
+        den = GRAV * dsin(DATA['fixedAngle'])
+    return sqrt(num / den)
+
+def friction_model(entry):
+    if 'fixedLength' in DATA.keys():
+        num = 2 * DATA['fixedLength']
+        den = GRAV * (dsin(entry) - DATA['friction'] * dcos(entry))
+    else:
+        num = 2 * entry
         den = GRAV * (dsin(DATA['fixedAngle']) - DATA['friction'] * \
             dcos(DATA['fixedAngle']))
-        yvalues.append(sqrt(num / den))
-    return {'x': xvalues, 'y': yvalues}
+    return sqrt(num / den)
 
-def get_compression_angle():
-    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
-        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
-    yvalues = list()
+def rolling_model(entry):
+    if 'fixedLength' in DATA.keys():
+        num = 2.8 * DATA['fixedLength']
+        den = GRAV * dsin(entry)
+    else:
+        num = 2.8 * entry
+        den = GRAV * dsin(DATA['fixedAngle'])
+    return sqrt(num / den)
 
-    for x in xvalues:
-        num = 2.8 * x
+def compression_model(entry):
+    if 'fixedLength' in DATA.keys():
+        num = 2.8 * DATA['fixedLength']
+        den = GRAV * (dsin(entry) - DATA['rolling'] * dcos(entry))
+    else:
+        num = 2.8 * entry
         den = GRAV * (dsin(DATA['fixedAngle']) - DATA['rolling'] * \
             dcos(DATA['fixedAngle']))
-        yvalues.append(sqrt(num / den))
-    return {'x': xvalues, 'y': yvalues}
-
-def get_sliding_angle():
-    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
-        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
-    yvalues = list()
-    
-    for x in xvalues:
-        num = 2 * x
-        den = GRAV * dsin(DATA['fixedAngle'])
-        yvalues.append(sqrt(num / den))
-    return {'x': xvalues, 'y': yvalues}
-
-def get_rolling_angle():
-    xvalues = [x/20 for x in range(int(PLOT_CONFIG['starting_length'] + 1), \
-        int(PLOT_CONFIG['ending_length'] * 20 + 1))]
-    yvalues = list()
-
-    for x in xvalues:
-        num = 2.8 * x
-        den = GRAV * dsin(DATA['fixedAngle'])
-        yvalues.append(sqrt(num / den))
-    
-    return {'x': xvalues, 'y': yvalues}
+    return sqrt(num / den)
 
 def get_compression():
     starting_angle = ceil(degrees(atan(DATA['rolling'])))
@@ -116,36 +117,7 @@ def get_compression():
         starting_angle = PLOT_CONFIG['starting_angle']
 
     xvalues = [x for x in range(starting_angle, PLOT_CONFIG['ending_angle'] + 1)]
-    yvalues = list()
-    
-    for x in xvalues:
-        num = 2.8 * DATA['fixedLength']
-        den = GRAV * (dsin(x) - DATA['rolling'] * dcos(x))
-        yvalues.append(sqrt(num / den))
-    return {'x': xvalues, 'y': yvalues}
-
-def get_rolling():
-    xvalues = [x for x in range(PLOT_CONFIG['starting_angle'], PLOT_CONFIG['ending_angle'] + 1)]
-    yvalues = list()
-
-    for x in xvalues:
-        num = 2.8 * DATA['fixedLength']
-        den = GRAV * dsin(x)
-        yvalues.append(sqrt(num / den))
-    return {'x': xvalues, 'y': yvalues}
-
-
-def get_sliding():
-    # Getting the xvalues between 1 and 85 with step 5
-    xvalues = [x for x in range(PLOT_CONFIG['starting_angle'], PLOT_CONFIG['ending_angle'] + 1)]
-    yvalues = list()
-
-    for x in xvalues:
-        num = 2 * DATA['fixedLength']
-        den = GRAV * dsin(x)
-        yvalues.append(sqrt(num / den))
-    return {'x': xvalues, 'y': yvalues}
-
+    return {'x': xvalues, 'y': [compression_model(x) for x in xvalues]}
 
 def get_friction():
     # Getting the xvalues who satisfy the condition
@@ -154,12 +126,6 @@ def get_friction():
         starting_angle = PLOT_CONFIG['starting_angle']
 
     xvalues = [x for x in range(starting_angle, PLOT_CONFIG['ending_angle'] + 1)]
-    yvalues = list()
-    
-    for x in xvalues:
-        num = 2 * DATA['fixedLength']
-        den = GRAV * (dsin(x) - DATA['friction'] * dcos(x)) 
-        yvalues.append(sqrt(num / den))
-    return {'x': xvalues, 'y': yvalues}
+    return {'x': xvalues, 'y': [friction_model(x) for x in xvalues]}
 
 main()
