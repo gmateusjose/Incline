@@ -66,7 +66,8 @@ def main():
 
     # Plotting the y-axis, the scatter plot (if any) the legend and showing up
     # the graph
-    plt.scatter(DATA['scatter']['x'], DATA['scatter']['y'], c='black')
+    plt.scatter(DATA['scatter']['x'], DATA['scatter']['y'], c='black', \
+        label="Resultado experimental")
     plt.ylabel('Duração movimento [s]')
     plt.legend()
     plt.show()
