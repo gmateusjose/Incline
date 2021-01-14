@@ -1,3 +1,4 @@
+import csv
 from sys import argv, exit
 
 
@@ -57,11 +58,34 @@ def get_data(arguments):
     experiment_data = {
         'friction': argv[3],
         'rolling': argv[4],
-        'scatter': {'x': list(), 'y': list()}
     }
+
     if argv[1] == '-l':
         experiment_data['fixedLength'] = argv[2]
     else:
         experiment_data['fixedAngle'] = argv[2]
 
+    # Get the scatter plot if any filename is provided
+    try:
+        experiment_data['scatter'] = get_scatter(argv[5])
+    except:
+        experiment_data['scatter'] = {'x': list(), 'y': list()}
+
     return experiment_data
+
+
+# Get the scattering plot from file
+def get_scatter(filename):
+    scatter = {'x': list(), 'y': list()}
+    try:
+        with open(filename) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                first = list(row.keys())[0]
+                second = list(row.keys())[1]
+
+                scatter['x'].append(float(row[first]))
+                scatter['y'].append(float(row[second]))
+    except:
+        print(f"""Warning: {filename} does not exist, or has been removed.""")
+    return scatter
