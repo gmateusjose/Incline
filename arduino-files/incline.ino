@@ -1,10 +1,9 @@
 /* Board's Configuration */
-#define minimalDistance 100
-#define firstSensor 8
-#define secondSensor 7
+#define firstSensor 53
+#define secondSensor 52
 
 /* Launching settings and uncertainty configuration */
-#define LAUNCHES 5
+#define LAUNCHES 50
 #define UNCERTAINTY 0.01
 
 /* Defining LauncherCounter and dinamically allocate memory to record all launchers */
@@ -27,9 +26,13 @@ void loop() {
   
   // Capture all the movements
   while(true){
-    // Look to see if sphere is on the top or at the bottom
-    bool on_top = analogRead(firstSensor) < minimalDistance && analogRead(secondSensor) > minimalDistance;
-    bool on_bottom = analogRead(firstSensor) > minimalDistance && analogRead(secondSensor) < minimalDistance;
+    /*  Look to see if the sphere is at the top or at the bottom. Important:
+     *   
+     *  If the digitalRead() returns 1 -> there's nothing
+     *  If the digitalRead() returns 0 -> there's something
+     */
+    bool on_top = digitalRead(firstSensor) == 0 && digitalRead(secondSensor) == 1;
+    bool on_bottom = digitalRead(firstSensor) == 1 && digitalRead(secondSensor) == 0;
     
     if(on_top){
       top = millis();
