@@ -1,22 +1,24 @@
-// Variable to configure the sensibility
-int sensor_distance = 100;
-int uncertainty = 0.01;
+/* Board's Configuration */
+#define minimalDistance 100
+#define firstSensor 8
+#define secondSensor 7
 
-// Settings for counting the movements and calculating the mean
-int count = 0;
-int total_movements = 50;
-float sum = 0;
+/* Launching settings and uncertainty configuration */
+#define LAUNCHES 5
+#define UNCERTAINTY 0.01
 
-// Dinamically allocate memory to store the time measurements
-float *measurements = (float*)malloc(total_movements * sizeof(float));
+/* Defining LauncherCounter and dinamically allocate memory to record all launchers */
+int launcherCounter = 0;
+float *measurements = (float*) malloc(LAUNCHES * sizeof(float));
 
+/* Pin and serial configuration */
 void setup() {
-  // pin configuration and serial configuration
-  pinMode(8, INPUT);
-  pinMode(7, INPUT);
+  pinMode(firstSensor, INPUT);
+  pinMode(secondSensor, INPUT);
   Serial.begin(9600);
 }
 
+/* Main function */
 void loop() {
   // set the variables to save the time when the sphere is at the top
   // and when the shpere is at the bottom.
@@ -26,8 +28,8 @@ void loop() {
   // Capture all the movements
   while(true){
     // Look to see if sphere is on the top or at the bottom
-    bool on_top = analogRead(8) < sensor_distance && analogRead(7) > sensor_distance;
-    bool on_bottom = analogRead(8) > sensor_distance && analogRead(7) < sensor_distance;
+    bool on_top = analogRead(firstSensor) < minimalDistance && analogRead(secondSensor) > minimalDistance;
+    bool on_bottom = analogRead(firstSensor) > minimalDistance && analogRead(secondSensor) < minimalDistance;
     
     if(on_top){
       top = millis();
@@ -35,46 +37,56 @@ void loop() {
       bottom = millis();
     }
 
-    // Checking the stop condition compute the results
-    // and then print the results 
+    // Checking the measurement condition and save the result.
     if(top != 0 and bottom != 0 and bottom > top){
-      // Calculating the time duration and storing all the values
-      float time_duration = (float)(bottom - top)/1000;
-      measurements[count] = time_duration;
-      sum += time_duration;
-      
-      Serial.print("Attempt ");
-      Serial.print(count + 1);
-      Serial.print(": ");
-      Serial.print(time_duration);
-      Serial.println(" s");
+      float measurement = (float)(bottom - top)/1000;
+      measurements[launcherCounter] = measurement;
+      print_attempts(measurement);
       break;
     }
   }
-  if(count < total_movements - 1){
-    // increase the movements counting
-    count++;
+
+  // Computing the stop condition.
+  if(launcherCounter < LAUNCHES - 1){
+    launcherCounter++;
   } else {
-    // Calculate the mean and finish the execution
-    float mean = sum / (float)total_movements;
-    Serial.print("\nMean: ");
-    Serial.print(mean);
-    Serial.print(" +- ");
-
-    // Calculating the total_uncertainty
-    float new_sum = 0;
-    for(int i = 0; i < total_movements; i++){
-      new_sum += pow(measurements[i] - mean, 2);
-    }
-    float dp_squared = new_sum / (float)pow(total_movements, 2);
-    float total_uncertainty = sqrt(dp_squared + pow(uncertainty, 2));
-
-    // Displaying the total uncertainty
-    Serial.print(total_uncertainty);
-    Serial.println(" s");
-
-    // Freeing up the memory and exiting
+    calculate_mean();
     free(measurements);
     exit;
   }
+}
+
+/* Function to calculate mean and the total uncertainty */
+void calculate_mean(){
+  // Defining the variable to store the mean
+  // and the square of the standart deviation 
+  float mean = 0;
+  float squaredSD = 0; 
+  
+  // Loop over all the measurements made to calculate the mean 
+  for (int i = 0; i < LAUNCHES; i++){
+    mean += measurements[i] / (float) LAUNCHES;
+  }
+
+  // Loop over all values again to calculate the total uncertainty
+  for (int i = 0; i < LAUNCHES; i++){
+    squaredSD += pow(measurements[i] - mean, 2) / (float) pow(LAUNCHES, 2);
+  }
+  float totalUncertainty = sqrt(squaredSD + pow(UNCERTAINTY, 2));
+
+  // Print out the mean and the total uncertainty
+  Serial.print("\nMean: ");
+  Serial.print(mean);
+  Serial.print(" +- ");
+  Serial.print(totalUncertainty);
+  Serial.print(" s.");
+}
+
+/* Function to print the measurements made */ 
+void print_attempts(float measurement){
+  Serial.print("Attempt ");
+  Serial.print(launcherCounter + 1);
+  Serial.print(": ");
+  Serial.print(measurement);
+  Serial.println(" s");
 }
